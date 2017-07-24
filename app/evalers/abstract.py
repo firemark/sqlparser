@@ -1,3 +1,5 @@
+from typing import Dict
+
 from app.parser import boxes
 import operator
 
@@ -8,10 +10,11 @@ class EvalerError(Exception):
 
 class AbstractEvaler(object):
     expr = None  # type: boxes.ExprBox
+    special_vars = None  # type: Dict[str, boxes.ExprBox]
     EVAL_METHODS = {
         boxes.StringBox: 'string',
         boxes.IntegerBox: 'integer',
-        boxes.NameBox: 'name',
+        boxes.NameBox: 'name_or_special',
         boxes.FuncBox: 'func',
         boxes.OpBox: 'op',
     }
@@ -30,12 +33,13 @@ class AbstractEvaler(object):
         'OP_AND': operator.and_,
     }
 
-    def __init__(self, expr: boxes.ExprBox):
+    def __init__(self, expr: boxes.ExprBox, special_vars=None):
         self.expr = expr
+        self.special_vars = special_vars or {}
 
-    @classmethod
-    def eval_again(cls, expr: boxes.ExprBox):
-        return cls(expr).eval()
+    def eval_again(self, expr: boxes.ExprBox):
+        cls = type(self)
+        return cls(expr, special_vars=self.special_vars).eval()
 
     def eval(self):
         expr_cls = type(self.expr)
@@ -50,6 +54,13 @@ class AbstractEvaler(object):
 
     def eval_string(self):
         raise NotImplementedError('eval_string')
+
+    def eval_name_or_special(self):
+        name = self.expr  # type: boxes.NameBox
+        special_var = self.special_vars.get(name.value)
+        if special_var is None:
+            return self.eval_name()
+        return self.eval_again(special_var)
 
     def eval_name(self):
         raise NotImplementedError('eval_name')
