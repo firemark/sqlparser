@@ -29,8 +29,8 @@ class AbstractEvaler(object):
         'OP_LTE': operator.le,
         'OP_GT': operator.gt,
         'OP_GTE': operator.ge,
-        'OP_OR': operator.or_,
-        'OP_AND': operator.and_,
+        'OP_OR': lambda a, b: a or b,
+        'OP_AND': lambda a, b: a and b,
     }
 
     def __init__(self, expr: boxes.ExprBox, special_vars=None):

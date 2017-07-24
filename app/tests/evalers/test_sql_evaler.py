@@ -7,7 +7,6 @@ from app.parser.boxes import StringBox, IntegerBox
 import pytest
 
 
-
 def evalize(query: str, special_vars: dict=None) -> ColumnElement:
     tree = parse_expr(query)
     statement = SqlEvaler(tree, special_vars=special_vars).eval()

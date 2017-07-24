@@ -1,4 +1,6 @@
-from typing import Optional, List
+from functools import reduce
+from operator import or_
+from typing import Optional, List, Union, Set
 
 
 class Box(object):
@@ -12,7 +14,9 @@ class Box(object):
 
 
 class ExprBox(Box):
-    pass
+
+    def find_names(self) -> Set[str]:
+        raise NotImplementedError('find_names')
 
 
 class StringBox(ExprBox):
@@ -20,11 +24,17 @@ class StringBox(ExprBox):
     def __init__(self, value: str):
         self.value = value
 
+    def find_names(self) -> Set[str]:
+        return set()
+
 
 class IntegerBox(ExprBox):
 
-    def __init__(self, value: str):
+    def __init__(self, value: Union[str, int]):
         self.value = int(value)
+
+    def find_names(self) -> Set[str]:
+        return set()
 
 
 class NameBox(ExprBox):
@@ -32,12 +42,18 @@ class NameBox(ExprBox):
     def __init__(self, value: str):
         self.value = value
 
+    def find_names(self) -> Set[str]:
+        return {self.value}
+
 
 class FuncBox(ExprBox):
 
     def __init__(self, name: str, args: List[ExprBox]):
         self.name = name
         self.args = args
+
+    def find_names(self) -> Set[str]:
+        return reduce(or_, (expr.find_names() for expr in self.args))
 
     def __repr__(self):
         return '<{} {} expr: {!r}>'.format(
@@ -47,13 +63,15 @@ class FuncBox(ExprBox):
         )
 
 
-
 class OpBox(ExprBox):
 
     def __init__(self, op: str, left: ExprBox, right: ExprBox):
         self.op = op
         self.left = left
         self.right = right
+
+    def find_names(self) -> Set[str]:
+        return self.left.find_names() | self.right.find_names()
 
     def __repr__(self):
         return '<{} {} left: {!r} right: {!r}>'.format(

@@ -1,7 +1,8 @@
+
 from sqlalchemy.sql.functions import Function
 
 from app.evalers.abstract import AbstractEvaler
-from app.parser.boxes import FuncBox, NameBox  # noqa
+from app.parser.boxes import FuncBox, NameBox
 from sqlalchemy.sql import expression, column, literal
 
 
