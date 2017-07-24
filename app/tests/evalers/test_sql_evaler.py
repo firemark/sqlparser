@@ -7,7 +7,7 @@ from app.parser.boxes import StringBox, IntegerBox
 import pytest
 
 
-def evalize(query: str, special_vars: dict=None) -> ColumnElement:
+def evalize(query: str, special_vars: dict=None) -> str:
     tree = parse_expr(query)
     statement = SqlEvaler(tree, special_vars=special_vars).eval()
     compiled_statement = statement.compile(
@@ -58,5 +58,3 @@ def test_set_special_var():
     }
     result = evalize('QUESTION_OF_LIFE = 40 + TWO', special_vars)
     assert result == "'42' = 40 + 2"
-
-

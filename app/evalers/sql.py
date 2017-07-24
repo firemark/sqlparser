@@ -1,4 +1,3 @@
-
 from sqlalchemy.sql.functions import Function
 
 from app.evalers.abstract import AbstractEvaler
