@@ -1,7 +1,8 @@
 from sqlalchemy.sql.functions import Function
 
 from app.evalers.abstract import AbstractEvaler
-from sqlalchemy.sql import expression
+from app.parser.boxes import FuncBox, NameBox  # noqa
+from sqlalchemy.sql import expression, column, literal
 
 
 class SqlEvaler(AbstractEvaler):
@@ -12,11 +13,16 @@ class SqlEvaler(AbstractEvaler):
     })
 
     def eval_integer(self):
-        return self.expr.value
+        return literal(self.expr.value)
 
     def eval_string(self):
-        return self.expr.value
+        return literal(self.expr.value)
+
+    def eval_name(self):
+        expr = self.expr  # type: NameBox
+        return column(expr.value)
 
     def eval_func(self):
-        args = [self.eval_again(arg) for arg in self.expr.args]
-        return Function(self.expr.name, args)
+        expr = self.expr  # type: FuncBox
+        args = [self.eval_again(arg) for arg in expr.args]
+        return Function(self.expr.name, *args)
