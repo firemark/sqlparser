@@ -1,6 +1,6 @@
 from app.tests.test_parser import parse
 from app.parser.boxes import (
-    NameBox, StringBox, IntegerBox, ExprBox, OpBox, FuncBox,
+    NameBox, StringBox, IntegerBox, ExprBox, OpBox, FuncBox, FloatBox
 )
 
 
@@ -19,6 +19,10 @@ def test_expr_string():
 
 def test_expr_int():
     assert parse_expr('42') == IntegerBox('42')
+
+
+def test_expr_float():
+    assert parse_expr('1.0') == FloatBox('1.0')
 
 
 def test_expr_add():

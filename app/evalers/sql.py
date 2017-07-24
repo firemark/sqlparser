@@ -16,6 +16,9 @@ class SqlEvaler(AbstractEvaler):
     def eval_integer(self):
         return literal(self.expr.value)
 
+    def eval_float(self):
+        return literal(self.expr.value)
+
     def eval_string(self):
         return literal(self.expr.value)
 

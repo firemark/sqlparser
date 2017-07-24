@@ -5,13 +5,16 @@ from typing import List, Optional
 from rply import ParserGenerator
 from rply.token import Token
 
-from app.parser.boxes import QueryBox, NameBox, ExprBox, StringBox, \
-    NamedExprBox, IntegerBox, OpBox, FuncBox
+from app.parser.boxes import (
+    QueryBox, NameBox, ExprBox, StringBox,
+    NamedExprBox, IntegerBox, OpBox, FuncBox,
+    FloatBox,
+)
 
 pg = ParserGenerator(
     [
         'SELECT', 'FROM', 'AS', 'WHERE',
-        'NAME', 'STRING', 'INTEGER',
+        'NAME', 'STRING', 'INTEGER', 'FLOAT',
         'DOT', 'COMMA',
         'OP_ADD', 'OP_SUB',
         'OP_MUL', 'OP_DIV',
@@ -66,10 +69,10 @@ def query(
 def optional_where(_, expr: ExprBox) -> ExprBox:
     return expr
 
+
 @pr('optional_where :')
 def optional_where_without_where() -> None:
     return None
-
 
 
 @pr('named_exprs : named_exprs COMMA named_expr')
@@ -141,6 +144,11 @@ def expr_as_string(string: Token) -> StringBox:
 @pr('expr : INTEGER')
 def expr_as_integer(integer: Token) -> IntegerBox:
     return IntegerBox(integer.getstr())
+
+
+@pr('expr : FLOAT')
+def expr_as_float(float_num: Token) -> FloatBox:
+    return FloatBox(float_num.getstr())
 
 
 @pr('expr : name')

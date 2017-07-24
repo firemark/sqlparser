@@ -21,5 +21,17 @@ def test_string():
     assert get_token("'a \\'string") == 'STRING'
 
 
+def test_float():
+    assert get_token("+-1.0") == 'FLOAT'
+
+
+def test_float_only_part():
+    assert get_token(".1") == 'FLOAT'
+
+
+def test_float_only_base():
+    assert get_token("1.") == 'FLOAT'
+
+
 def test_select():
     assert get_token('SELECT') == 'SELECT'

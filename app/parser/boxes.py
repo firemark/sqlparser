@@ -1,6 +1,10 @@
 from functools import reduce
 from operator import or_
 from typing import Optional, List, Union, Set
+from decimal import Decimal
+
+
+Numerable = Union[str, int, float]
 
 
 class Box(object):
@@ -19,22 +23,28 @@ class ExprBox(Box):
         raise NotImplementedError('find_names')
 
 
-class StringBox(ExprBox):
+class SimpleExprBox(ExprBox):
+
+    def find_names(self) -> Set[str]:
+        return set()
+
+
+class StringBox(SimpleExprBox):
 
     def __init__(self, value: str):
         self.value = value
 
-    def find_names(self) -> Set[str]:
-        return set()
 
+class IntegerBox(SimpleExprBox):
 
-class IntegerBox(ExprBox):
-
-    def __init__(self, value: Union[str, int]):
+    def __init__(self, value: Numerable):
         self.value = int(value)
 
-    def find_names(self) -> Set[str]:
-        return set()
+
+class FloatBox(SimpleExprBox):
+
+    def __init__(self, value: Numerable):
+        self.value = Decimal(value)
 
 
 class NameBox(ExprBox):

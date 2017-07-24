@@ -24,6 +24,10 @@ def test_sql_evaler_string():
     assert evalize("'string'") == "'string'"
 
 
+def test_sql_evaler_float():
+    assert evalize('1.1') == '1.1'
+
+
 def test_sql_evaler_column_name():
     assert evalize('username') == 'username'
 
@@ -54,3 +58,5 @@ def test_set_special_var():
     }
     result = evalize('QUESTION_OF_LIFE = 40 + TWO', special_vars)
     assert result == "'42' = 40 + 2"
+
+

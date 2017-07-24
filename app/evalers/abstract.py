@@ -1,6 +1,7 @@
 from typing import Dict
 
 from app.parser import boxes
+from abc import ABC, abstractclassmethod
 import operator
 
 
@@ -8,11 +9,12 @@ class EvalerError(Exception):
     pass
 
 
-class AbstractEvaler(object):
+class AbstractEvaler(ABC):
     expr = None  # type: boxes.ExprBox
     special_vars = None  # type: Dict[str, boxes.ExprBox]
     EVAL_METHODS = {
         boxes.StringBox: 'string',
+        boxes.FloatBox: 'float',
         boxes.IntegerBox: 'integer',
         boxes.NameBox: 'name_or_special',
         boxes.FuncBox: 'func',
@@ -49,9 +51,15 @@ class AbstractEvaler(object):
         method = getattr(self, 'eval_%s' % method_name)
         return method()
 
+    @abstractclassmethod
     def eval_integer(self):
         raise NotImplementedError('eval_integer')
 
+    @abstractclassmethod
+    def eval_float(self):
+        raise NotImplementedError('eval_float')
+
+    @abstractclassmethod
     def eval_string(self):
         raise NotImplementedError('eval_string')
 
@@ -62,9 +70,11 @@ class AbstractEvaler(object):
             return self.eval_name()
         return self.eval_again(special_var)
 
+    @abstractclassmethod
     def eval_name(self):
         raise NotImplementedError('eval_name')
 
+    @abstractclassmethod
     def eval_func(self):
         raise NotImplementedError('eval_func')
 
