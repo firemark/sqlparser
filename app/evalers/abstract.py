@@ -1,7 +1,7 @@
 from typing import Dict
 
 from app.parser import boxes
-from abc import ABC, abstractclassmethod
+from abc import ABC, abstractmethod
 import operator
 
 
@@ -51,17 +51,25 @@ class AbstractEvaler(ABC):
         method = getattr(self, 'eval_%s' % method_name)
         return method()
 
-    @abstractclassmethod
+    @abstractmethod
     def eval_integer(self):
         raise NotImplementedError('eval_integer')
 
-    @abstractclassmethod
+    @abstractmethod
     def eval_float(self):
         raise NotImplementedError('eval_float')
 
-    @abstractclassmethod
+    @abstractmethod
     def eval_string(self):
         raise NotImplementedError('eval_string')
+
+    @abstractmethod
+    def eval_name(self):
+        raise NotImplementedError('eval_name')
+
+    @abstractmethod
+    def eval_func(self):
+        raise NotImplementedError('eval_func')
 
     def eval_name_or_special(self):
         name = self.expr  # type: boxes.NameBox
@@ -69,14 +77,6 @@ class AbstractEvaler(ABC):
         if special_var is None:
             return self.eval_name()
         return self.eval_again(special_var)
-
-    @abstractclassmethod
-    def eval_name(self):
-        raise NotImplementedError('eval_name')
-
-    @abstractclassmethod
-    def eval_func(self):
-        raise NotImplementedError('eval_func')
 
     def eval_op(self):
         expr = self.expr  # type: boxes.OpBox
