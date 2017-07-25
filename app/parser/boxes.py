@@ -133,5 +133,6 @@ class QueryBox(Box):
         self.where = where
         self.orders = orders
 
+
     def __repr__(self):
         return '<QueryBox>'

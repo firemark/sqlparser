@@ -10,11 +10,11 @@ from app.tables.abstract import AbstractTable
 from app.evalers.sql import SqlEvaler
 
 
-def create_base(uri):
+def create_engine_and_base(uri):
     engine = create_engine(uri)
     base = automap_base()
     base.prepare(engine, reflect=True)
-    return base
+    return engine, base
 
 
 class SqlTable(AbstractTable):
@@ -37,17 +37,9 @@ class SqlTable(AbstractTable):
 
     def _get_column_with_label(self, named_expr: NamedExprBox):
         column = self.eval(named_expr.expr)
-        name = self._get_name_of_named_expr(named_expr)
+        name = self.get_name_of_named_expr(named_expr)
         labeled_column = column.label(name)
         return labeled_column
-
-    @staticmethod
-    def _get_name_of_named_expr(named_expr: NamedExprBox) -> str:
-        name_box = named_expr.name
-        if name_box is not None:
-            return name_box.value
-        names = sorted(named_expr.expr.find_names())
-        return '__'.join(names) or '??'
 
     def generate_select(self) -> Select:
         return Select(
@@ -58,4 +50,6 @@ class SqlTable(AbstractTable):
 
     def generate_data(self) -> Iterator[Tuple]:
         select = self.generate_select()
-        yield from self.connection(select)
+        result = self.connection.execute(select)
+        yield [desc['name'] for desc in result.column_descriptions]
+        yield from result

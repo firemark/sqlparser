@@ -8,7 +8,6 @@ setup(
     requirements=[
         'rply>=0.7.5',
         'SQLAlchemy>=1.1.11',
+        'pymongo>=3.4.0',
     ]
 )
-
-
