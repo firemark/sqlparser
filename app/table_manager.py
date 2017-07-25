@@ -34,6 +34,6 @@ class TableManager(object):
         generator = table.generate_data()
         first_row = next(generator)
 
-        stdout.write(output.parse_first_row(first_row))
+        stream.write(output.parse_first_row(first_row))
         for row in generator:
-            stdout.write(output.parse_row(row))
+            stream.write(output.parse_row(row))
