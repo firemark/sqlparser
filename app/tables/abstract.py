@@ -16,7 +16,7 @@ class AbstractTable(ABC):
         return evaler.eval()
 
     def make_evaler(
-            self, expr: ExprBox, evaler_cls: Optional[Type[T]]=None) -> T:
+            self, expr: ExprBox, evaler_cls=None) -> T:
         evaler_cls = evaler_cls or self.EVALER
         return evaler_cls(expr, special_vars=self.SPECIAL_VARS)
 

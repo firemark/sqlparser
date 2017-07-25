@@ -42,8 +42,9 @@ class MongoTable(AbstractTable):
 
     def generate_data(self) -> Iterator[Tuple]:
         yield [name for name, _ in self.columns]
+        where = {'$where': self.where} if self.where else None,
         finds = self.TABLE.find(
-            filter={'$where': self.where},
+            filter=where,
             projection={name: True for name in self.query_columns},
             cursor=CursorType.TAILABLE,
         )

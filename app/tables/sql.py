@@ -20,11 +20,11 @@ def create_engine_and_base(uri):
 class SqlTable(AbstractTable):
     EVALER = SqlEvaler
     TABLE = None  # SQLAlchemy ORM table
+    CONNECTION = None
 
-    def __init__(self, connection):
+    def __init__(self):
         self.columns = []  # type: List[ColumnElement]
         self.where = None  # type: ColumnElement
-        self.connection = connection
 
     def set_columns(self, exprs: List[NamedExprBox]):
         self.columns += [
@@ -50,6 +50,6 @@ class SqlTable(AbstractTable):
 
     def generate_data(self) -> Iterator[Tuple]:
         select = self.generate_select()
-        result = self.connection.execute(select)
-        yield [desc['name'] for desc in result.column_descriptions]
+        result = self.CONNECTION.execute(select)
+        #yield [desc['name'] for desc in result.column_descriptions]
         yield from result
