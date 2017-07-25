@@ -20,6 +20,8 @@ class MongoTable(AbstractTable):
         self.columns = []  # type: List[column_type]
         self.query_columns = []  # type: Set[str]
         self.where = None  # type: str
+        self.limit = None  # type: int
+        self.offset = None  # type: int
 
     def set_columns(self, exprs: List[NamedExprBox]):
         self.query_columns |= reduce(
@@ -34,6 +36,12 @@ class MongoTable(AbstractTable):
     def set_where(self, expr: ExprBox):
         self.where = self.eval(expr).value
 
+    def set_limit(self, limit: int):
+        self.limit = limit
+
+    def set_offset(self, offset: int):
+        self.offset = offset
+
     def _get_column_with_label(self, named_expr: NamedExprBox) -> column_type:
         evaler = self.make_evaler(named_expr.expr, evaler_cls=PythonEvaler)
         column = evaler.convert_to_function()
@@ -47,6 +55,8 @@ class MongoTable(AbstractTable):
             filter=where,
             projection={name: True for name in self.query_columns},
             cursor=CursorType.TAILABLE,
+            limit=self.limit,
+            skip=self.skip,
         )
         for obj in finds:
             yield [func(obj) for _, func in self.columns]

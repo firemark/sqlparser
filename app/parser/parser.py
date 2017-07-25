@@ -26,8 +26,8 @@ pg = ParserGenerator(
     ],
     precedence=[
         ('right', ['PAREN_LEFT', 'PAREN_RIGHT']),
-        ('left', ['OP_LT', 'OP_GT', 'OP_EQ', 'OP_NEQ', 'OP_LTE', 'OP_GTE']),
         ('left', ['OP_AND', 'OP_OR']),
+        ('left', ['OP_LT', 'OP_GT', 'OP_EQ', 'OP_NEQ', 'OP_LTE', 'OP_GTE']),
         ('left', ['OP_ADD', 'OP_SUB']),
         ('left', ['OP_MUL', 'OP_DIV']),
     ]

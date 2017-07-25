@@ -29,6 +29,14 @@ class AbstractTable(ABC):
         raise NotImplementedError('get_where')
 
     @abstractmethod
+    def set_limit(self, limit: int):
+        raise NotImplementedError('set_limit')
+
+    @abstractmethod
+    def set_offset(self, offset: int):
+        raise NotImplementedError('set_offset')
+
+    @abstractmethod
     def generate_data(self) -> Iterator[Tuple]:
         """yield rows with N cells"""
         raise NotImplementedError('generate_date')
