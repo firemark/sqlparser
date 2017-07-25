@@ -1,21 +1,67 @@
 from app.evalers.abstract import AbstractEvaler, EvalerError
-from app.parser.boxes import FuncBox, NameBox, SimpleExprBox
+from app.parser.boxes import FuncBox, NameBox
 
 
-def formatize(op):
+class MongoBox(object):
+    __slots__ = ('type', 'value')
 
-    def inner(a, b):
-        return '({left} {op} {right})'.format(
-            left=a,
-            right=b,
-            op=op,
+    def __init__(self, type: str, value: str):
+        self.type = type
+        self.value = value
+
+
+class OpFormatizer(object):
+    """
+        Join two 'stringed' eval values
+        with single operator
+        to one 'stringed' eval
+    """
+
+    PRIORITY_TYPES = {
+        'STRING': 0,
+        'INT': 0,
+        'FLOAT': 0,
+        'BOOL': 0,
+        'VAR': 0,
+        'FUNC': 0,
+        'OP_MUL': 2,
+        'OP_DIV': 2,
+        'OP_ADD': 4,
+        'OP_SUB': 4,
+        'OP_LT': 6,
+        'OP_LTE': 6,
+        'OP_GT': 6,
+        'OP_GTE': 6,
+        'OP_EQ': 8,
+        'OP_NEQ': 8,
+        'OP_OR': 10,
+        'OP_AND': 10,
+    }
+
+    def __init__(self, op_type: str, op: str):
+        self.op_type = op_type
+        self.op = op
+
+    def _check_priority(self, mongo_box: MongoBox) -> str:
+        op_type = self.op_type
+        if self.PRIORITY_TYPES[mongo_box.type] > self.PRIORITY_TYPES[op_type]:
+            return '(%s)' % mongo_box.value
+        else:
+            return mongo_box.value
+
+    def _get_value(self, a, b):
+        return '{left} {op} {right}'.format(
+            left=self._check_priority(a),
+            right=self._check_priority(b),
+            op=self.op,
         )
 
-    return inner
+    def __call__(self, a, b):
+        return MongoBox(self.op_type, self._get_value(a, b))
 
 
 class MongoWhereEvaler(AbstractEvaler):
-    OPS = {key: formatize(op) for key, op in {
+    OPS = {key: OpFormatizer(key, op) for key, op in {
         'OP_ADD': '+',
         'OP_SUB': '-',
         'OP_MUL': '*',
@@ -30,27 +76,27 @@ class MongoWhereEvaler(AbstractEvaler):
         'OP_AND': '&&',
     }.items()}
 
-    # TODO: create MongoBox with type of value
-    # TODO: dont add useless braces in eval_op
-
     def eval_integer(self):
-        return str(self.expr.value)
+        return MongoBox('INT', str(self.expr.value))
 
     def eval_float(self):
-        return str(self.expr.value)
+        return MongoBox('FLOAT', str(self.expr.value))
 
     def eval_string(self):
-        return repr(self.expr.value)
+        return MongoBox('STRING', repr(self.expr.value))
 
     def eval_name(self):
         expr = self.expr  # type: NameBox
-        return 'this.%s' % expr.value
+        value = expr.value
+        format = 'this.%s' if value.isalnum() else 'this[%r]'
+        return MongoBox('VAR', format % value)
 
     def eval_func(self):
-        # TODO: Support object (as string or array) methods
+        # TODO: Support object (like string or array) methods
         expr = self.expr  # type: FuncBox
-        args = [self.eval_again(arg) for arg in expr.args]
-        return '{func}({args})'.format(
+        args = [self.eval_again(arg).value for arg in expr.args]
+        value = '{func}({args})'.format(
             func=expr.name,
             args=', '.join(args),
         )
+        return MongoBox('FUNC', value)
