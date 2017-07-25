@@ -9,8 +9,9 @@ class AbstractTable(ABC):
     EVALER = AbstractEvaler # type: Type[AbstractEvaler]
     SPECIAL_VARS = None  # type: Dict[str, ExprBox]
 
-    def eval(self, expr: ExprBox):
-        return self.EVALER(expr, special_vars=self.SPECIAL_VARS).eval()
+    def eval(self, expr: ExprBox, evaler=None):
+        evaler = evaler or self.EVALER
+        return evaler(expr, special_vars=self.SPECIAL_VARS).eval()
 
     @abstractmethod
     def set_columns(self, exprs: List[NamedExprBox]):
