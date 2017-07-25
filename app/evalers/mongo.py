@@ -43,8 +43,8 @@ class OpFormatizer(object):
         self.op = op
 
     def _check_priority(self, mongo_box: MongoBox) -> str:
-        op_type = self.op_type
-        if self.PRIORITY_TYPES[mongo_box.type] > self.PRIORITY_TYPES[op_type]:
+        types = self.PRIORITY_TYPES
+        if types[mongo_box.type] > types[self.op_type]:
             return '(%s)' % mongo_box.value
         else:
             return mongo_box.value

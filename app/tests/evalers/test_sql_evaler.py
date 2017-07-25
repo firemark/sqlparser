@@ -51,7 +51,7 @@ def test_sql_or_operator():
     assert evalize('val1 OR val2') == 'val1 OR val2'
 
 
-def test_set_special_var():
+def test_sql_set_special_var():
     special_vars = {
         'QUESTION_OF_LIFE': StringBox('42'),
         'TWO': IntegerBox('2'),

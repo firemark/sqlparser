@@ -54,11 +54,11 @@ def test_mongo_priority_with_braces():
     assert evalize('(a + b) * c') == '(this.a + this.b) * this.c'
 
 
-def test_name_with_spaces():
+def test_mongo_name_with_spaces():
     assert evalize('"VAL WITH SPACES"') == "this['VAL WITH SPACES']"
 
 
-def test_set_special_var():
+def test_mongo_set_special_var():
     special_vars = {
         'QUESTION_OF_LIFE': StringBox('42'),
         'TWO': IntegerBox('2'),
