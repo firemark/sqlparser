@@ -13,7 +13,7 @@ from app.parser.boxes import (
 
 pg = ParserGenerator(
     [
-        'SELECT', 'FROM', 'AS', 'WHERE',
+        'SELECT', 'FROM', 'AS', 'WHERE', 'LIMIT', 'OFFSET',
         'NAME', 'STRING', 'INTEGER', 'FLOAT',
         'DOT', 'COMMA',
         'OP_ADD', 'OP_SUB',
@@ -55,14 +55,21 @@ def main(query: QueryBox) -> QueryBox:
     return query
 
 
-@pr('query : SELECT named_exprs FROM name optional_where')
+@pr('query : SELECT named_exprs FROM name optional_where optional_limit')
 def query(
         _s,
         named_exprs: List[NamedExprBox],
         _f,
         from_name:NameBox,
-        where:Optional[ExprBox]) -> QueryBox:
-    return QueryBox(named_exprs, [from_name], where=where)
+        where:Optional[ExprBox],
+        optional_limit:list) -> QueryBox:
+    return QueryBox(
+        named_exprs,
+        [from_name],
+        where=where,
+        limit=optional_limit[0],
+        offset=optional_limit[1],
+    )
 
 
 @pr('optional_where : WHERE expr')
@@ -74,6 +81,20 @@ def optional_where(_, expr: ExprBox) -> ExprBox:
 def optional_where_without_where() -> None:
     return None
 
+
+@pr('optional_limit : LIMIT INTEGER OFFSET INTEGER')
+def optional_limit_with_offset(_l, limit: Token, _o, offset: Token) -> list:
+    return [int(limit.getstr()), int(offset.getstr())]
+
+
+@pr('optional_limit : LIMIT INTEGER')
+def optional_limit(_, limit: Token) -> list:
+    return [int(limit.getstr()), None]
+
+
+@pr('optional_limit :')
+def optional_limit_without_limit() -> list:
+    return [None, None]
 
 @pr('named_exprs : named_exprs COMMA named_expr')
 def named_exprs(

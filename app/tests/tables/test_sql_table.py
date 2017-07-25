@@ -15,7 +15,7 @@ class MockSqlTable(SqlTable):
 
 def evalize(query: str) -> str:
     tree = parse(query)
-    table = MockSqlTable(object())
+    table = MockSqlTable()
     table.set_columns(tree.exprs)
     if tree.where:
         table.set_where(tree.where)

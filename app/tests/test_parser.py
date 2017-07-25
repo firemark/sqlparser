@@ -15,6 +15,9 @@ def test_parser_simple_query():
             NamedExprBox(None, NameBox('x')),
         ],
         froms=[NameBox('z')],
+        where=None,
+        limit=None,
+        offset=None,
     )
 
 
@@ -50,3 +53,15 @@ def test_parser_where():
         left=NameBox('a'),
         right=NameBox('b'),
     )
+
+
+def test_parser_limit():
+    query = parse('SELECT a FROM z LIMIT 5')
+    assert query.limit == 5
+    assert query.offset is None
+
+
+def test_parser_OFFSET():
+    query = parse('SELECT a FROM z LIMIT 5 OFFSET 5')
+    assert query.limit == 5
+    assert query.offset == 5

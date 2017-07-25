@@ -127,12 +127,15 @@ class QueryBox(Box):
             exprs: List[NamedExprBox],
             froms: List[NameBox],
             where: Optional[ExprBox]=None,
+            limit: Optional[int]=None,
+            offset: Optional[int]=None,
             orders=None):
         self.exprs = exprs
         self.froms = froms
         self.where = where
         self.orders = orders
-
+        self.limit = limit
+        self.offset = offset
 
     def __repr__(self):
         return '<QueryBox>'
