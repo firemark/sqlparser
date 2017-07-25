@@ -4,4 +4,4 @@ class CsvOutput(object):
         return self.parse_row(row)
 
     def parse_row(self, row):
-        return ','.join(repr(cell).replace(',','\\,') for cell in row)
+        return ','.join(repr(cell) for cell in row) + '\n'

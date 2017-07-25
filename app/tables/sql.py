@@ -20,7 +20,7 @@ def create_engine_and_base(uri):
 class SqlTable(AbstractTable):
     EVALER = SqlEvaler
     TABLE = None  # SQLAlchemy ORM table
-    CONNECTION = None
+    ENGINE = None
 
     def __init__(self):
         self.columns = []  # type: List[ColumnElement]
@@ -50,6 +50,6 @@ class SqlTable(AbstractTable):
 
     def generate_data(self) -> Iterator[Tuple]:
         select = self.generate_select()
-        result = self.CONNECTION.execute(select)
-        #yield [desc['name'] for desc in result.column_descriptions]
+        result = self.ENGINE.execute(select)
+        yield result.keys()
         yield from result
