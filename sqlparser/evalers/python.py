@@ -33,7 +33,7 @@ class PythonEvaler(AbstractEvaler):
     def eval_name(self):
         expr = self.expr  # type: NameBox
         value = expr.value
-        return EvalBox('VAR', 'obj[%r]' % value)
+        return EvalBox('VAR', 'obj.get(%r, None)' % value)
 
     def eval_func(self):
         raise EvalerError('Functions in Python Evaler are not supported')

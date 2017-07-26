@@ -2,6 +2,8 @@ from functools import reduce
 from operator import or_
 from typing import Callable, Tuple, List, Iterator, Set
 
+from pymongo.collection import Collection
+
 from sqlparser.parser.boxes import ExprBox, NamedExprBox
 from sqlparser.tables.abstract import AbstractTable
 from sqlparser.evalers.mongo import MongoWhereEvaler
@@ -14,14 +16,14 @@ column_type = Tuple[str, Callable]
 
 class MongoTable(AbstractTable):
     EVALER = MongoWhereEvaler
-    TABLE = None  # MongoEngine database
+    TABLE = None  # type: Collection
 
     def __init__(self):
         self.columns = []  # type: List[column_type]
-        self.query_columns = []  # type: Set[str]
+        self.query_columns = set()  # type: Set[str]
         self.where = None  # type: str
-        self.limit = None  # type: int
-        self.offset = None  # type: int
+        self.limit = 0  # type: int
+        self.offset = 0  # type: int
 
     def set_columns(self, exprs: List[NamedExprBox]):
         self.query_columns |= reduce(
@@ -37,10 +39,10 @@ class MongoTable(AbstractTable):
         self.where = self.eval(expr).value
 
     def set_limit(self, limit: int):
-        self.limit = limit
+        self.limit = limit or 0
 
     def set_offset(self, offset: int):
-        self.offset = offset
+        self.offset = offset or 0
 
     def _get_column_with_label(self, named_expr: NamedExprBox) -> column_type:
         evaler = self.make_evaler(named_expr.expr, evaler_cls=PythonEvaler)
@@ -50,13 +52,17 @@ class MongoTable(AbstractTable):
 
     def generate_data(self) -> Iterator[Tuple]:
         yield [name for name, _ in self.columns]
-        where = {'$where': self.where} if self.where else None,
-        finds = self.TABLE.find(
+        where = {'$where': self.where} if self.where else None
+        cursor = self.TABLE.find(
             filter=where,
             projection={name: True for name in self.query_columns},
-            cursor=CursorType.TAILABLE,
+            #cursor_type=CursorType.TAILABLE,
             limit=self.limit,
-            skip=self.skip,
+            skip=self.offset,
         )
-        for obj in finds:
-            yield [func(obj) for _, func in self.columns]
+        try:
+            for obj in cursor.batch_size(20):
+                yield [func(obj) for _, func in self.columns]
+        finally:
+            cursor.close()
+
