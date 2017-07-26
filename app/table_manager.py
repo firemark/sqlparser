@@ -7,7 +7,6 @@ from app.tables.abstract import AbstractTable
 from sys import stdout
 
 
-
 class TableManager(object):
 
     def __init__(self):

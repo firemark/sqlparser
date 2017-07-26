@@ -1,18 +1,67 @@
 import sys
-from importlib.machinery import SourceFileLoader
+import os
+import argparse
+import traceback
 
-config = sys.argv[1]
-module = SourceFileLoader('config.config', config).load_module()
+from importlib.machinery import SourceFileLoader
+from prompt_toolkit import prompt
+from prompt_toolkit.application import AbortAction
+from prompt_toolkit.history import FileHistory
+
+
+parser = argparse.ArgumentParser(
+    description='Execute query and return data'
+)
+parser.add_argument('query', nargs='?', help='SQL query')
+parser.add_argument(
+    '-c', '--config',
+    help='filepath to config file',
+    required=True)
+parser.add_argument(
+    '-o', '--output',
+    help='pythonpath to output class (default csv)',
+    default=None)
+
+args = parser.parse_args()
+
+module = SourceFileLoader('config.config', args.config).load_module()
 manager = module.manager
 
-if len(sys.argv) > 2:
-    query = sys.argv[2]
-    manager.execute_query(query)
+
+def execute(query):
+    manager.execute_query(query, output_cls=args.output)
+
+
+if args.query:
+    execute(args.query)
     exit(0)
 
-try:
-    while True:
-        query = input('SQLPARSER> ')
-        manager.execute_query(query)
-except KeyboardInterrupt:
-    pass
+if not os.isatty(0):
+    try:
+        for query in sys.stdin:
+            if not query:
+                continue
+            execute(query)
+    except (KeyboardInterrupt, EOFError):
+        pass
+    exit(0)
+
+
+history_path = os.path.join(os.path.expanduser('~'), '.sqlparserlog')
+history = FileHistory(history_path)
+while True:
+    try:
+        query = prompt(
+            'SQLPARSER >> ',
+            history=history,
+            on_abort=AbortAction.RETRY,
+        )
+    except EOFError:
+        print('Bye!')
+        exit(0)
+    try:
+        execute(query)
+    except:
+        traceback.print_exc()
+    finally:
+        history.append(query)

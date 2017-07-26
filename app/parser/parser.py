@@ -15,7 +15,7 @@ pg = ParserGenerator(
     [
         'SELECT', 'FROM', 'AS', 'WHERE', 'LIMIT', 'OFFSET',
         'NAME', 'STRING', 'INTEGER', 'FLOAT',
-        'DOT', 'COMMA',
+        'COMMA',
         'OP_ADD', 'OP_SUB',
         'OP_MUL', 'OP_DIV',
         'OP_OR', 'OP_AND',
