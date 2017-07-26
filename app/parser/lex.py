@@ -2,6 +2,11 @@ from rply import LexerGenerator
 
 lg = LexerGenerator()
 
+KEYWORDS = [
+    'SELECT', 'FROM', 'AS', 'WHERE', 'LIMIT', 'OFFSET',
+    'AND', 'OR', 'LIKE', 'GROUP BY'
+]
+
 lg.add('SELECT', 'SELECT')
 lg.add('FROM', 'FROM')
 lg.add('AS', 'AS')

@@ -1,16 +1,9 @@
 import sys
 import os
 import argparse
-import traceback
-
-from importlib.machinery import SourceFileLoader
-from prompt_toolkit import prompt
-from prompt_toolkit.application import AbortAction
-from prompt_toolkit.history import FileHistory
-
 
 parser = argparse.ArgumentParser(
-    description='Execute query and return data'
+    description='Execute query and return data',
 )
 parser.add_argument('query', nargs='?', help='SQL query')
 parser.add_argument(
@@ -24,6 +17,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+from importlib.machinery import SourceFileLoader
 module = SourceFileLoader('config.config', args.config).load_module()
 manager = module.manager
 
@@ -46,22 +40,5 @@ if not os.isatty(0):
         pass
     exit(0)
 
-
-history_path = os.path.join(os.path.expanduser('~'), '.sqlparserlog')
-history = FileHistory(history_path)
-while True:
-    try:
-        query = prompt(
-            'SQLPARSER >> ',
-            history=history,
-            on_abort=AbortAction.RETRY,
-        )
-    except EOFError:
-        print('Bye!')
-        exit(0)
-    try:
-        execute(query)
-    except:
-        traceback.print_exc()
-    finally:
-        history.append(query)
+from app.prompt import run_prompt
+run_prompt(execute)
