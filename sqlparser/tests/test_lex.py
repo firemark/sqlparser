@@ -1,4 +1,4 @@
-from app.parser.lex import lexer
+from sqlparser.parser.lex import lexer
 
 
 def get_token(data):

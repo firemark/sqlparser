@@ -1,8 +1,8 @@
 from sqlalchemy.sql.expression import table
-from app.tests.test_parser import parse
+from sqlparser.tests.test_parser import parse
 
-from app.tables.sql import SqlTable
-from app.tables.utils import special_vars
+from sqlparser.tables.sql import SqlTable
+from sqlparser.tables.utils import special_vars
 
 
 class MockSqlTable(SqlTable):

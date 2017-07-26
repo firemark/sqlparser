@@ -1,8 +1,8 @@
-from app.parser.parser import parser
-from app.parser.lex import lexer
-from app.output.csv_output import CsvOutput
-from app.parser.boxes import QueryBox
-from app.tables.abstract import AbstractTable
+from sqlparser.parser.parser import parser
+from sqlparser.parser.lex import lexer
+from sqlparser.output.csv_output import CsvOutput
+from sqlparser.parser.boxes import QueryBox
+from sqlparser.tables.abstract import AbstractTable
 
 from sys import stdout
 

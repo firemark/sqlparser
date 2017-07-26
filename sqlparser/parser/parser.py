@@ -5,7 +5,7 @@ from typing import List, Optional
 from rply import ParserGenerator
 from rply.token import Token
 
-from app.parser.boxes import (
+from sqlparser.parser.boxes import (
     QueryBox, NameBox, ExprBox, StringBox,
     NamedExprBox, IntegerBox, OpBox, FuncBox,
     FloatBox,

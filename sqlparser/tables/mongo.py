@@ -2,10 +2,10 @@ from functools import reduce
 from operator import or_
 from typing import Callable, Tuple, List, Iterator, Set
 
-from app.parser.boxes import ExprBox, NamedExprBox
-from app.tables.abstract import AbstractTable
-from app.evalers.mongo import MongoWhereEvaler
-from app.evalers.python import PythonEvaler
+from sqlparser.parser.boxes import ExprBox, NamedExprBox
+from sqlparser.tables.abstract import AbstractTable
+from sqlparser.evalers.mongo import MongoWhereEvaler
+from sqlparser.evalers.python import PythonEvaler
 
 from pymongo.cursor import CursorType
 

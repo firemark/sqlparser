@@ -5,9 +5,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql.elements import ColumnElement  # noqa
 from sqlalchemy.sql.expression import Select
 
-from app.parser.boxes import ExprBox, NamedExprBox
-from app.tables.abstract import AbstractTable
-from app.evalers.sql import SqlEvaler
+from sqlparser.parser.boxes import ExprBox, NamedExprBox
+from sqlparser.tables.abstract import AbstractTable
+from sqlparser.evalers.sql import SqlEvaler
 
 
 def create_engine_and_base(uri):

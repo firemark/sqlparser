@@ -1,6 +1,6 @@
 from typing import Dict
 
-from app.parser import boxes
+from sqlparser.parser import boxes
 from abc import ABC, abstractmethod
 import operator
 

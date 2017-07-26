@@ -40,5 +40,5 @@ if not os.isatty(0):
         pass
     exit(0)
 
-from app.prompt import run_prompt
+from sqlparser.prompt import run_prompt
 run_prompt(execute)

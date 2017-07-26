@@ -1,8 +1,8 @@
 from sqlalchemy.sql.elements import ColumnElement
 
-from app.evalers.sql import SqlEvaler
-from app.tests.test_expr_parser import parse_expr
-from app.parser.boxes import StringBox, IntegerBox
+from sqlparser.evalers.sql import SqlEvaler
+from sqlparser.tests.test_expr_parser import parse_expr
+from sqlparser.parser.boxes import StringBox, IntegerBox
 
 import pytest
 

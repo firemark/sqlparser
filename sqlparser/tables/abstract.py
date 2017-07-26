@@ -1,8 +1,8 @@
 from typing import Tuple, List, Iterator, Dict, Type, TypeVar, Optional  # noqa
 from abc import ABC, abstractmethod
 
-from app.parser.boxes import ExprBox, NamedExprBox
-from app.evalers.abstract import AbstractEvaler
+from sqlparser.parser.boxes import ExprBox, NamedExprBox
+from sqlparser.evalers.abstract import AbstractEvaler
 
 T = TypeVar('EvalerType', bound=AbstractEvaler)
 

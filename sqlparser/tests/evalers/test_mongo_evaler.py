@@ -1,6 +1,6 @@
-from app.evalers.mongo import MongoWhereEvaler
-from app.tests.test_expr_parser import parse_expr
-from app.parser.boxes import StringBox, IntegerBox
+from sqlparser.evalers.mongo import MongoWhereEvaler
+from sqlparser.tests.test_expr_parser import parse_expr
+from sqlparser.parser.boxes import StringBox, IntegerBox
 
 import pytest
 

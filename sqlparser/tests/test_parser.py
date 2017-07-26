@@ -1,7 +1,7 @@
 from pprint import pprint
-from app.parser.parser import parser
-from app.parser.lex import lexer
-from app.parser.boxes import QueryBox, NameBox, NamedExprBox, OpBox
+from sqlparser.parser.parser import parser
+from sqlparser.parser.lex import lexer
+from sqlparser.parser.boxes import QueryBox, NameBox, NamedExprBox, OpBox
 
 
 def parse(data: str) -> QueryBox:

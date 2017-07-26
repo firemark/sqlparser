@@ -3,7 +3,7 @@ import traceback
 
 from prompt_toolkit.contrib.completers.base import WordCompleter
 
-from app.parser.lex import KEYWORDS
+from sqlparser.parser.lex import KEYWORDS
 
 from prompt_toolkit import prompt
 from prompt_toolkit.application import AbortAction

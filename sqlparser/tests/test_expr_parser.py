@@ -1,5 +1,5 @@
-from app.tests.test_parser import parse
-from app.parser.boxes import (
+from sqlparser.tests.test_parser import parse
+from sqlparser.parser.boxes import (
     NameBox, StringBox, IntegerBox, ExprBox, OpBox, FuncBox, FloatBox
 )
 
