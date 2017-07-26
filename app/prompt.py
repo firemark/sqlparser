@@ -8,7 +8,6 @@ from app.parser.lex import KEYWORDS
 from prompt_toolkit import prompt
 from prompt_toolkit.application import AbortAction
 from prompt_toolkit.history import FileHistory
-from prompt_toolkit.token import Token
 
 from pygments.lexers.sql import SqlLexer
 
