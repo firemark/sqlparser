@@ -17,6 +17,7 @@ class AbstractEvaler(ABC):
         boxes.FloatBox: 'float',
         boxes.IntegerBox: 'integer',
         boxes.NameBox: 'name_or_special',
+        boxes.TypeCastBox: 'typecast',
         boxes.FuncBox: 'func',
         boxes.OpBox: 'op',
     }
@@ -33,6 +34,17 @@ class AbstractEvaler(ABC):
         'OP_GTE': operator.ge,
         'OP_OR': lambda a, b: a or b,
         'OP_AND': lambda a, b: a and b,
+        'OP_BITWISE_XOR': operator.xor,
+        'OP_BITWISE_AND': operator.and_,
+        'OP_BITWISE_OR': operator.or_,
+        'OP_IN': lambda a, b: a in b,
+        'OP_NOT_INT': lambda a, b: a not in b,
+    }
+    SINGLE_OPS = {
+        'OP_NOT': operator.not_,
+        'OP_BITWISE_NOT': operator.inv,
+        'OP_ABSOLUTE': operator.abs,
+        'OP_SUB': operator.neg,
     }
 
     def __init__(self, expr: boxes.ExprBox, special_vars=None):
@@ -71,6 +83,10 @@ class AbstractEvaler(ABC):
     def eval_func(self):
         raise NotImplementedError('eval_func')
 
+    #@abstractmethod
+    def eval_typecast(self):
+        raise NotImplementedError('eval_typecast')
+
     def eval_name_or_special(self):
         name = self.expr  # type: boxes.NameBox
         special_var = self.special_vars.get(name.value)
@@ -88,3 +104,11 @@ class AbstractEvaler(ABC):
             raise EvalerError('operator %s is not supported' % op, op)
         return func(left, right)
 
+    def eval_single_op(self):
+        expr = self.expr  # type: boxes.OpBox
+        value = self.eval_again(expr.value)
+        op = expr.op
+        func = self.SINGLE_OPS.get(op)
+        if func is None:
+            raise EvalerError('single operator %s is not supported' % op, op)
+        return func(value)

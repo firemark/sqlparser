@@ -9,27 +9,42 @@ from sqlparser.parser.boxes import (
     QueryBox, NameBox, ExprBox, StringBox,
     NamedExprBox, IntegerBox, OpBox, FuncBox,
     FloatBox,
-)
+    SingleOpBox, BooleanBox, TypeCastBox, NullBox)
+from sqlparser.parser.lex import OPERATORS, SINGLE_OPERATORS
+
 
 pg = ParserGenerator(
     [
         'SELECT', 'FROM', 'AS', 'WHERE', 'LIMIT', 'OFFSET',
-        'NAME', 'STRING', 'INTEGER', 'FLOAT',
-        'COMMA',
+        'NAME', 'STRING', 'INTEGER', 'FLOAT', 'BOOL', 'NULL',
+        'COMMA', 'TYPECAST',
         'OP_ADD', 'OP_SUB',
-        'OP_MUL', 'OP_DIV',
+        'OP_MUL', 'OP_DIV', 'OP_MOD',
         'OP_OR', 'OP_AND',
         'OP_LT', 'OP_GT',
         'OP_LTE', 'OP_GTE',
         'OP_EQ', 'OP_NEQ',
+        'OP_BITWISE_OR', 'OP_BITWISE_AND', 'OP_BITWISE_XOR',
+        'OP_NOT', 'OP_BITWISE_NOT', 'OP_ABSOLUTE',
+        'OP_LSHIFT', 'OP_RSHIFT',
+        'OP_LIKE', 'OP_NOT_LIKE',
+        'OP_IN', 'OP_NOT_IN',
         'PAREN_LEFT', 'PAREN_RIGHT',
+        #'BRACKET_LEFT', 'BRACKET_RIGHT',
     ],
     precedence=[
         ('right', ['PAREN_LEFT', 'PAREN_RIGHT']),
         ('left', ['OP_AND', 'OP_OR']),
+        ('right', ['OP_NOT']),
         ('left', ['OP_LT', 'OP_GT', 'OP_EQ', 'OP_NEQ', 'OP_LTE', 'OP_GTE']),
+        ('left', ['OP_BITWISE_OR', 'OP_BITWISE_AND', 'OP_BITWISE_XOR']),
+        ('left', ['OP_LSHIFT', 'OP_RSHIFT']),
+        ('left', ['OP_LIKE', 'OP_NOT_LIKE']),
+        ('left', ['OP_IN', 'OP_NOT_IN']),
         ('left', ['OP_ADD', 'OP_SUB']),
-        ('left', ['OP_MUL', 'OP_DIV']),
+        ('left', ['OP_MUL', 'OP_DIV', 'OP_MOD']),
+        ('right', ['OP_ABSOLUTE', 'OP_BITWISE_NOT']),
+        #('right', ['BRACKET_LEFT', 'BRACKET_RIGHT']),
     ]
 )
 
@@ -96,6 +111,7 @@ def optional_limit(_, limit: Token) -> list:
 def optional_limit_without_limit() -> list:
     return [None, None]
 
+
 @pr('named_exprs : named_exprs COMMA named_expr')
 def named_exprs(
         named_exprs: List[NameBox], _, named_expr: NameBox) -> List[NameBox]:
@@ -142,19 +158,19 @@ def func_args_stop(expr: ExprBox) -> List[ExprBox]:
     return [expr]
 
 
-@pr(
-    'expr : expr %s expr' % expr
-    for expr in [
-        'OP_ADD', 'OP_SUB',
-        'OP_MUL', 'OP_DIV',
-        'OP_AND', 'OP_OR',
-        'OP_LT', 'OP_GT',
-        'OP_LTE', 'OP_GTE',
-        'OP_EQ', 'OP_NEQ',
-    ]
-)
+@pr('expr : expr %s expr' % expr for expr in OPERATORS)
 def expr_as_op(left: ExprBox, op: Token, right: ExprBox) -> OpBox:
     return OpBox(op=op.gettokentype(), left=left, right=right)
+
+
+@pr('expr : %s expr' % expr for expr in SINGLE_OPERATORS)
+def expr_as_op(op: Token, value: ExprBox) -> SingleOpBox:
+    return SingleOpBox(op=op.gettokentype(), value=value)
+
+
+@pr('expr : expr TYPECAST NAME')
+def expr_as_op(left: ExprBox, _, right: NameBox) -> TypeCastBox:
+    return TypeCastBox(to=right.value, value=left)
 
 
 @pr('expr : STRING')
@@ -170,6 +186,16 @@ def expr_as_integer(integer: Token) -> IntegerBox:
 @pr('expr : FLOAT')
 def expr_as_float(float_num: Token) -> FloatBox:
     return FloatBox(float_num.getstr())
+
+
+@pr('expr : NULL')
+def expr_as_null(_) -> NullBox:
+    return NullBox()
+
+
+@pr('expr : BOOL')
+def expr_as_float(bool: Token) -> BooleanBox:
+    return BooleanBox(bool.getstr())
 
 
 @pr('expr : name')

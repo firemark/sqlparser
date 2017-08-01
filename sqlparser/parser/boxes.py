@@ -47,6 +47,20 @@ class FloatBox(SimpleExprBox):
         self.value = Decimal(value)
 
 
+class NullBox(SimpleExprBox):
+    pass
+
+
+class BooleanBox(SimpleExprBox):
+    TRUE_VALUES = {'TRUE', 'YES'}
+    value = False  # type: bool
+
+    def __init__(self, value: Union[bool, str]):
+        if isinstance(value, bool):
+            self.value = value
+        self.value = value.upper() in self.TRUE_VALUES
+
+
 class NameBox(ExprBox):
 
     def __init__(self, value: str):
@@ -90,6 +104,34 @@ class OpBox(ExprBox):
             self.left,
             self.right,
         )
+
+
+class SingleOpBox(ExprBox):
+
+    def __init__(self, op: str, value: ExprBox):
+        self.op = op
+        self.value = value
+
+    def find_names(self) -> Set[str]:
+        return self.value.find_names()
+
+    def __repr__(self):
+        return '<{} {} value: {!r}>'.format(
+            type(self).__name__,
+            self.op,
+            self.value,
+        )
+
+
+class TypeCastBox(ExprBox):
+
+    def __init__(self, to: str, value: ExprBox):
+        self.to = to.lower()
+        self.value = value
+
+    def find_names(self) -> Set[str]:
+        return self.value.find_names()
+
 
 
 class ColumnNameBox(Box):
@@ -139,3 +181,5 @@ class QueryBox(Box):
 
     def __repr__(self):
         return '<QueryBox>'
+
+
