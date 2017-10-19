@@ -46,6 +46,7 @@ class AbstractEvaler(ABC):
         'OP_ABSOLUTE': operator.abs,
         'OP_SUB': operator.neg,
     }
+    FUNCTIONS = {}
 
     def __init__(self, expr: boxes.ExprBox, special_vars=None):
         self.expr = expr
@@ -80,10 +81,6 @@ class AbstractEvaler(ABC):
         raise NotImplementedError('eval_name')
 
     @abstractmethod
-    def eval_func(self):
-        raise NotImplementedError('eval_func')
-
-    #@abstractmethod
     def eval_typecast(self):
         raise NotImplementedError('eval_typecast')
 
@@ -112,3 +109,12 @@ class AbstractEvaler(ABC):
         if func is None:
             raise EvalerError('single operator %s is not supported' % op, op)
         return func(value)
+
+    def eval_func(self):
+        expr = self.expr  # type: boxes.FuncBox
+        args = [self.eval_again(arg) for arg in expr.args]
+        name = expr.name
+        func = self.FUNCTIONS.get(name.lower())
+        if func is None:
+            raise EvalerError('unknown function %s' % name, name)
+        return func(*args)

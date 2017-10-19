@@ -61,7 +61,7 @@ def test_parser_limit():
     assert query.offset is None
 
 
-def test_parser_OFFSET():
+def test_parser_offset():
     query = parse('SELECT a FROM z LIMIT 5 OFFSET 5')
     assert query.limit == 5
     assert query.offset == 5

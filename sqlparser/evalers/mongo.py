@@ -1,4 +1,4 @@
-from sqlparser.evalers.abstract import AbstractEvaler
+from sqlparser.evalers.abstract import AbstractEvaler, EvalerError
 from sqlparser.evalers.utils import OpFormatizer, EvalBox
 from sqlparser.parser.boxes import FuncBox, NameBox
 
@@ -61,6 +61,17 @@ class MongoWhereEvaler(AbstractEvaler):
         # TODO: Support object (like string or array) methods
         expr = self.expr  # type: FuncBox
         args = [self.eval_again(arg).value for arg in expr.args]
+        value = '{func}({args})'.format(
+            func=expr.name,
+            args=', '.join(args),
+        )
+        return EvalBox('FUNC', value)
+
+    def eval_typecast(self):
+        expr = self.expr # type: TypeCastBox
+        expr_type = self.TYPES.get(expr.to)
+        if expr_type is None:
+            raise EvalerError('type %s is not supported' % expr.to, expr.to)
         value = '{func}({args})'.format(
             func=expr.name,
             args=', '.join(args),

@@ -24,38 +24,40 @@ def test_python_evaler_float():
 
 
 def test_python_evaler_column_name():
-    assert evalize('username') == "obj['username']"
+    assert evalize('username') == "obj.get('username')"
 
 
 @pytest.mark.parametrize('op', [
     '+', '-', '*', '/', '!=', '>', '>=', '<=', '<',
 ])
 def test_python_evaler_operator(op):
-    assert evalize('val1 %s val2' % op) == "obj['val1'] %s obj['val2']" % op
+    code = "obj.get('val1') %s obj.get('val2')" % op
+    assert evalize('val1 %s val2' % op) == code
 
 
 def test_python_and_operator():
-    assert evalize('val1 AND val2') == "obj['val1'] and obj['val2']"
+    assert evalize('val1 AND val2') == "obj.get('val1') and obj.get('val2')"
 
 
 def test_python_or_operator():
-    assert evalize('val1 OR val2') == "obj['val1'] or obj['val2']"
+    assert evalize('val1 OR val2') == "obj.get('val1') or obj.get('val2')"
 
 
 def test_python_priority():
-    assert evalize('a + b * c') == "obj['a'] + obj['b'] * obj['c']"
+    assert evalize('a + b * c') == "obj.get('a') + obj.get('b') * obj.get('c')"
 
 
 def test_python_priority_with_equal_ops():
-    assert evalize('a + b - c') == "obj['a'] + obj['b'] - obj['c']"
+    assert evalize('a + b - c') == "obj.get('a') + obj.get('b') - obj.get('c')"
 
 
 def test_python_priority_with_braces():
-    assert evalize('(a + b) * c') == "(obj['a'] + obj['b']) * obj['c']"
+    code = "(obj.get('a') + obj.get('b')) * obj.get('c')"
+    assert evalize('(a + b) * c') == code
 
 
 def test_python_name_with_spaces():
-    assert evalize('"VAL WITH SPACES"') == "obj['VAL WITH SPACES']"
+    assert evalize('"VAL WITH SPACES"') == "obj.get('VAL WITH SPACES')"
 
 
 def test_python_set_special_var():
@@ -65,6 +67,10 @@ def test_python_set_special_var():
     }
     result = evalize('QUESTION_OF_LIFE = 40 + TWO', special_vars)
     assert result == "'42' == 40 + 2"
+
+
+def test_python_typecast():
+    assert evalize("'5'::int") == "int('5')"
 
 
 def test_convert_to_function():

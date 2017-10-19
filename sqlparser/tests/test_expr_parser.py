@@ -1,8 +1,8 @@
 from sqlparser.tests.test_parser import parse
 from sqlparser.parser.boxes import (
     NameBox, StringBox, IntegerBox, ExprBox, OpBox, FuncBox, FloatBox,
-    TypeCastBox,
-    BooleanBox, NullBox, SingleOpBox)
+    TypeCastBox, BooleanBox, NullBox, SingleOpBox,
+)
 
 
 def parse_expr(expr: str) -> ExprBox:
@@ -95,8 +95,8 @@ def test_expr_braces():
 
 
 def test_expr_func():
-    assert parse_expr('a(b)') == FuncBox(
-        name='a',
+    assert parse_expr('lower(b)') == FuncBox(
+        name='lower',
         args=[
             NameBox('b'),
         ]

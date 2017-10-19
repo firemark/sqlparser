@@ -20,6 +20,17 @@ class PythonEvaler(AbstractEvaler):
         'OP_OR': 'or',
         'OP_AND': 'and',
     }.items()}
+    TYPES = {
+        'int': 'int',
+        'integer': 'int',
+        'date': 'date',
+        'datetime': 'datetime',
+        'numeric': 'Decimal',
+        'float': 'Decimal',
+        'text': 'str',
+        'str': 'str',
+        'character': 'str',
+    }
 
     def eval_integer(self):
         return EvalBox('INT', str(self.expr.value))
@@ -33,7 +44,19 @@ class PythonEvaler(AbstractEvaler):
     def eval_name(self):
         expr = self.expr  # type: NameBox
         value = expr.value
-        return EvalBox('VAR', 'obj.get(%r, None)' % value)
+        return EvalBox('VAR', 'obj.get(%r)' % value)
+
+    def eval_typecast(self):
+        expr = self.expr  # type: TypeCastBox
+        expr_type = self.TYPES.get(expr.to)  # type: str
+        if expr_type is None:
+            raise EvalerError('type %s is not supported' % expr.to, expr.to)
+        value = '{type}({arg})'.format(
+            type=expr_type,
+            arg=self.eval_again(expr.value).value,
+        )
+
+        return EvalBox('FUNC', value)
 
     def eval_func(self):
         raise EvalerError('Functions in Python Evaler are not supported')

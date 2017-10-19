@@ -1,5 +1,6 @@
 from sqlalchemy.sql.elements import ColumnElement
 
+from sqlparser.evalers.abstract import EvalerError
 from sqlparser.evalers.sql import SqlEvaler
 from sqlparser.tests.test_expr_parser import parse_expr
 from sqlparser.parser.boxes import StringBox, IntegerBox
@@ -58,3 +59,21 @@ def test_sql_set_special_var():
     }
     result = evalize('QUESTION_OF_LIFE = 40 + TWO', special_vars)
     assert result == "'42' = 40 + 2"
+
+
+def test_sql_unknown_function():
+    with pytest.raises(EvalerError) as exp:
+        evalize('foobarito(5)')
+
+    assert exp.value.args == ('unknown function foobarito', 'foobarito')
+
+
+def test_sql_typecasting():
+    assert evalize('"5"::float') == 'CAST("5" AS NUMERIC)'
+
+
+def test_sql_unknown_typecasting():
+    with pytest.raises(EvalerError) as exp:
+        evalize('5::foobarito')
+
+    assert exp.value.args == ('type foobarito is not supported', 'foobarito')
