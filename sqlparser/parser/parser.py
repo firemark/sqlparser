@@ -30,6 +30,7 @@ pg = ParserGenerator(
         'OP_LIKE', 'OP_NOT_LIKE',
         'OP_IN', 'OP_NOT_IN',
         'PAREN_LEFT', 'PAREN_RIGHT',
+        'GROUP_BY',
         #'BRACKET_LEFT', 'BRACKET_RIGHT',
     ],
     precedence=[
@@ -70,18 +71,20 @@ def main(query: QueryBox) -> QueryBox:
     return query
 
 
-@pr('query : SELECT named_exprs FROM name optional_where optional_limit')
+@pr('query : SELECT named_exprs FROM name optional_where optional_group_by optional_limit')
 def query(
         _s,
         named_exprs: List[NamedExprBox],
         _f,
         from_name:NameBox,
         where:Optional[ExprBox],
+        optional_group_by: list,
         optional_limit:list) -> QueryBox:
     return QueryBox(
         named_exprs,
         [from_name],
         where=where,
+        group_by=optional_group_by,
         limit=optional_limit[0],
         offset=optional_limit[1],
     )
@@ -94,6 +97,16 @@ def optional_where(_, expr: ExprBox) -> ExprBox:
 
 @pr('optional_where :')
 def optional_where_without_where() -> None:
+    return None
+
+
+@pr('optional_group_by : GROUP_BY func_args')
+def optional_group_by(_, args) -> list:
+    return args
+
+
+@pr('optional_group_by : ')
+def optional_group_by() -> None:
     return None
 
 

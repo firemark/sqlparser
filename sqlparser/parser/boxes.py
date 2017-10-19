@@ -169,12 +169,14 @@ class QueryBox(Box):
             exprs: List[NamedExprBox],
             froms: List[NameBox],
             where: Optional[ExprBox]=None,
+            group_by: Optional[list]=None,
             limit: Optional[int]=None,
             offset: Optional[int]=None,
             orders=None):
         self.exprs = exprs
         self.froms = froms
         self.where = where
+        self.group_by = group_by
         self.orders = orders
         self.limit = limit
         self.offset = offset

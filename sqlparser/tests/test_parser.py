@@ -18,6 +18,7 @@ def test_parser_simple_query():
         where=None,
         limit=None,
         offset=None,
+        group_by=None,
     )
 
 
@@ -65,3 +66,15 @@ def test_parser_offset():
     query = parse('SELECT a FROM z LIMIT 5 OFFSET 5')
     assert query.limit == 5
     assert query.offset == 5
+
+
+def test_group_by():
+    query = parse('SELECT a FROM z GROUP BY foo + bar, foo')
+    assert query.group_by == [
+        OpBox(
+            op='OP_ADD',
+            left=NameBox('foo'),
+            right=NameBox('bar'),
+        ),
+        NameBox('foo'),
+    ]
