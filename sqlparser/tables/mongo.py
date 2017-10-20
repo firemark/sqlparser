@@ -14,6 +14,9 @@ from pymongo.cursor import CursorType
 column_type = Tuple[str, Callable]
 
 
+# TODO: we need reimplenent query
+
+
 class MongoTable(AbstractTable):
     EVALER = MongoWhereEvaler
     TABLE = None  # type: Collection
@@ -24,6 +27,7 @@ class MongoTable(AbstractTable):
         self.where = None  # type: str
         self.limit = 0  # type: int
         self.offset = 0  # type: int
+        self.group_by = None
 
     def set_columns(self, exprs: List[NamedExprBox]):
         self.query_columns |= reduce(
@@ -43,6 +47,10 @@ class MongoTable(AbstractTable):
 
     def set_offset(self, offset: int):
         self.offset = offset or 0
+
+    def set_group_by(self, exprs: List[ExprBox]):
+        # TODO: implement in generate_data method
+        self.group_by = [self.eval(expr).value for expr in exprs]
 
     def _get_column_with_label(self, named_expr: NamedExprBox) -> column_type:
         evaler = self.make_evaler(named_expr.expr, evaler_cls=PythonEvaler)

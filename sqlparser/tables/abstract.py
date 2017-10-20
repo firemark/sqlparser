@@ -37,7 +37,7 @@ class AbstractTable(ABC):
         raise NotImplementedError('set_offset')
 
     @abstractmethod
-    def set_group_by(self, expr: List[ExprBox]):
+    def set_group_by(self, exprs: List[ExprBox]):
         raise NotImplementedError('set_group_by')
 
     @abstractmethod
