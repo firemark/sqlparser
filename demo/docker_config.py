@@ -8,7 +8,7 @@ from sqlparser.table_manager import TableManager
 from sqlparser.tables.mongo import MongoTable
 from sqlparser.tables.utils import special_vars
 
-mongo = MongoClient('localhost', 6961)
+mongo = MongoClient('mongo', 6961)
 engine = create_engine('postgresql://demo:demo@0:6960/demo')
 manager = TableManager()
 
