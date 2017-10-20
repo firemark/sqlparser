@@ -1,10 +1,16 @@
 from sqlalchemy.sql.expression import table
+
+from sqlparser.table_manager import TableManager
 from sqlparser.tests.test_parser import parse
 
 from sqlparser.tables.sql import SqlTable
 from sqlparser.tables.utils import special_vars
 
 
+manager = TableManager()
+
+
+@manager.register('users')
 class MockSqlTable(SqlTable):
     SPECIAL_VARS = special_vars(
         x=42,
@@ -15,11 +21,7 @@ class MockSqlTable(SqlTable):
 
 def evalize(query: str) -> str:
     tree = parse(query)
-    table = MockSqlTable()
-    table.set_columns(tree.exprs)
-    if tree.where:
-        table.set_where(tree.where)
-
+    table = manager.prepare_table(tree)
     statement = table.generate_select()
     compiled_statement = statement.compile(
         compile_kwargs={"literal_binds": True},
@@ -61,4 +63,13 @@ def test_sql_table_with_special_vars():
     assert result == (
         'SELECT money + 42 AS money__x FROM users '
         'WHERE lower(username) = \'42\''
+    )
+
+
+def test_sql_table_grouping():
+    result = evalize('SELECT username FROM users GROUP BY gender, age')
+    assert result == (
+        'SELECT username AS username '
+        'FROM users '
+        'GROUP BY gender, age'
     )

@@ -25,8 +25,9 @@ class SqlTable(AbstractTable):
     def __init__(self):
         self.columns = []  # type: List[ColumnElement]
         self.where = None  # type: ColumnElement
-        self.limit = None # type: int
+        self.limit = None  # type: int
         self.offset = None  # type: int
+        self.group_by = None  # type: ColumnElement
 
     def set_columns(self, exprs: List[NamedExprBox]):
         self.columns += [
@@ -43,6 +44,9 @@ class SqlTable(AbstractTable):
     def set_offset(self, offset: int):
         self.offset = offset
 
+    def set_group_by(self, exprs: List[ExprBox]):
+        self.group_by = [self.eval(expr) for expr in exprs]
+
     def _get_column_with_label(self, named_expr: NamedExprBox):
         column = self.eval(named_expr.expr)
         name = self.get_name_of_named_expr(named_expr)
@@ -56,6 +60,7 @@ class SqlTable(AbstractTable):
             from_obj=self.TABLE,
             limit=self.limit,
             offset=self.offset,
+            group_by=self.group_by,
         )
 
     def generate_data(self) -> Iterator[Tuple]:

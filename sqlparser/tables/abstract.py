@@ -37,6 +37,10 @@ class AbstractTable(ABC):
         raise NotImplementedError('set_offset')
 
     @abstractmethod
+    def set_group_by(self, expr: List[ExprBox]):
+        raise NotImplementedError('set_group_by')
+
+    @abstractmethod
     def generate_data(self) -> Iterator[Tuple]:
         """yield rows with N cells"""
         raise NotImplementedError('generate_date')
