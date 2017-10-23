@@ -1,10 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import psycopg2
 import csv
 
 conn = psycopg2.connect(
     dbname='demo', user='demo', password='demo',
-    host='localhost', port=6960,
+    host='postgres',
 )
 c = conn.cursor()
 c.execute("""

@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from pymongo import MongoClient
 import csv
 
-conn = MongoClient('localhost', 6961)
+conn = MongoClient('localhost')
 db = conn.demo
 airline = db.airline
 
