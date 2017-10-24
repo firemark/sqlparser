@@ -22,25 +22,24 @@ class MongoTable(AbstractTable):
     TABLE = None  # type: Collection
 
     def __init__(self):
+        super().__init__()
         self.columns = []  # type: List[column_type]
         self.query_columns = set()  # type: Set[str]
         self.where = None  # type: str
         self.limit = 0  # type: int
         self.offset = 0  # type: int
-        self.group_by = None
+        self.group_by = []
 
     def set_columns(self, exprs: List[NamedExprBox]):
-        self.query_columns |= reduce(
-            or_,
-            (expr.expr.find_names() for expr in exprs)
-        )
         self.columns += [
             self._get_column_with_label(named_expr)
             for named_expr in exprs
         ]
+        self._fill_used_columns(named_expr.expr for named_expr in exprs)
 
     def set_where(self, expr: ExprBox):
         self.where = self.eval(expr).value
+        self._fill_used_columns([expr])
 
     def set_limit(self, limit: int):
         self.limit = limit or 0
@@ -51,6 +50,7 @@ class MongoTable(AbstractTable):
     def set_group_by(self, exprs: List[ExprBox]):
         # TODO: implement in generate_data method
         self.group_by = [self.eval(expr).value for expr in exprs]
+        self._fill_used_columns(exprs)
 
     def _get_column_with_label(self, named_expr: NamedExprBox) -> column_type:
         evaler = self.make_evaler(named_expr.expr, evaler_cls=PythonEvaler)
@@ -59,6 +59,7 @@ class MongoTable(AbstractTable):
         return name, column
 
     def generate_data(self) -> Iterator[Tuple]:
+        self.before_execute()
         yield [name for name, _ in self.columns]
         where = {'$where': self.where} if self.where else None
         cursor = self.TABLE.find(
@@ -68,6 +69,7 @@ class MongoTable(AbstractTable):
             limit=self.limit,
             skip=self.offset,
         )
+        self.after_execute()
         try:
             for obj in cursor.batch_size(20):
                 yield [func(obj) for _, func in self.columns]

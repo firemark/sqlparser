@@ -1,4 +1,4 @@
-from typing import Tuple, List, Iterator, Dict, Type, TypeVar, Optional  # noqa
+from typing import Tuple, List, Iterator, Dict, Type, TypeVar, Set  # noqa
 from abc import ABC, abstractmethod
 
 from sqlparser.parser.boxes import ExprBox, NamedExprBox
@@ -8,21 +8,49 @@ T = TypeVar('EvalerType', bound=AbstractEvaler)
 
 
 class AbstractTable(ABC):
-    EVALER = AbstractEvaler # type: Type[T]
+    EVALER = AbstractEvaler  # type: Type[T]
     SPECIAL_VARS = None  # type: Dict[str, ExprBox]
+
+    def __init__(self):
+        self.used_columns = set()  # type: Set[str]
+
+    def _fill_used_columns(self, exprs: Iterator[ExprBox]):
+        for expr in exprs:
+            self.used_columns |= expr.find_names()
 
     def eval(self, expr: ExprBox, evaler_cls: Type[T]=None):
         evaler = self.make_evaler(expr, evaler_cls)
         return evaler.eval()
 
-    def make_evaler(
-            self, expr: ExprBox, evaler_cls=None) -> T:
+    def make_evaler(self, expr: ExprBox, evaler_cls=None) -> T:
         evaler_cls = evaler_cls or self.EVALER
         return evaler_cls(expr, special_vars=self.SPECIAL_VARS)
+
+    def before_execute(self):
+        """
+        This method will be called when query will be parsed but not executed.
+        This method is for general purpose.
+        """
+        pass
+
+    def after_execute(self):
+        """
+        This method will be called after executed query.
+        This method is for general purpose.
+        """
+        pass
 
     @abstractmethod
     def set_columns(self, exprs: List[NamedExprBox]):
         raise NotImplementedError('get_columns')
+
+    @abstractmethod
+    def get_used_columns(self) -> Set[str]:
+        """
+
+        :return: set of used columns in query
+        """
+        raise NotImplementedError('get_used_columns')
 
     @abstractmethod
     def set_where(self, expr: ExprBox):
