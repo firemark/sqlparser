@@ -12,11 +12,11 @@ from prompt_toolkit.history import FileHistory
 from pygments.lexers.sql import SqlLexer
 
 
-history_path = os.path.join(os.path.expanduser('~'), '.sqlparserlog')
-sql_completer = WordCompleter(KEYWORDS, ignore_case=True)
-
-
 def run_prompt(callback):
+    history_path = os.environ.get('SQLPARSER_PROMPTLOG')
+    if history_path is None:
+        history_path = os.path.join(os.path.expanduser('~'), '.sqlparserlog')
+    sql_completer = WordCompleter(KEYWORDS, ignore_case=True)
     print('SQLPARSER!! Ctrl-C to cancel query, Ctrl-D to Exit')
     print()
     history = FileHistory(history_path)

@@ -12,6 +12,8 @@ services:
     image: sqlparser
     volumes:
       - .:/demo
+    environment:
+      - "SQLPARSER_PROMPTLOG=/demo/.sqlparserlog"
     depends_on:
       - postgres
       - mongo
