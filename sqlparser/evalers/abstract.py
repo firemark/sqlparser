@@ -86,7 +86,8 @@ class AbstractEvaler(ABC):
 
     def eval_name_or_special(self):
         name = self.expr  # type: boxes.NameBox
-        special_var = self.special_vars.get(name.value)
+        value = name.get_real_value()
+        special_var = self.special_vars.get(value)
         if special_var is None:
             return self.eval_name()
         return self.eval_again(special_var)

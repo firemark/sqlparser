@@ -54,7 +54,8 @@ class SqlEvaler(AbstractEvaler):
 
     def eval_name(self):
         expr = self.expr  # type: NameBox
-        return column(expr.value)
+        return column(expr.get_real_value(), is_literal=True)
+
 
     def eval_typecast(self):
         expr = self.expr # type: TypeCastBox

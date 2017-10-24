@@ -63,11 +63,18 @@ class BooleanBox(SimpleExprBox):
 
 class NameBox(ExprBox):
 
-    def __init__(self, value: str):
+    def __init__(self, value: str, table_value: str=None):
+        self.table_value = table_value
         self.value = value
 
     def find_names(self) -> Set[str]:
         return {self.value}
+
+    def get_real_value(self):
+        if self.table_value is None:
+            return self.value
+        key = '{}.{}'.format(self.table_value, self.value)
+        return key
 
 
 class FuncBox(ExprBox):

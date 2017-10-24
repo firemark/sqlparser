@@ -17,7 +17,7 @@ pg = ParserGenerator(
     [
         'SELECT', 'FROM', 'AS', 'WHERE', 'LIMIT', 'OFFSET',
         'NAME', 'STRING', 'INTEGER', 'FLOAT', 'BOOL', 'NULL',
-        'COMMA', 'TYPECAST',
+        'COMMA', 'TYPECAST', 'DOT',
         'OP_ADD', 'OP_SUB',
         'OP_MUL', 'OP_DIV', 'OP_MOD',
         'OP_OR', 'OP_AND',
@@ -62,6 +62,8 @@ def pr(*rules):
 
         for gram in rules:  # set rules to decorated function
             pg.production(gram)(inner)
+
+        return func
 
     return outer
 
@@ -216,12 +218,22 @@ def expr_as_name(name: NameBox) -> NameBox:
     return name
 
 
-@pr('name : NAME')
-def name(name: Token) -> NameBox:
-    value = name.getstr()
+def unquote_name(value):
     if value[0] == '"':
-        value = value[1:-1].replace(r'\"', '"')
-    return NameBox(value)
+        return value[1:-1].replace(r'\"', '"')
+    return value
 
+
+@pr('name : NAME')
+def not_dotted_name(name: Token) -> NameBox:
+    value = name.getstr()
+    return NameBox(unquote_name(value))
+
+
+@pr('name : NAME DOT NAME')
+def dotted_name(left: Token, _, right: Token) -> NameBox:
+    left_name = unquote_name(left.getstr())
+    right_name = unquote_name(right.getstr())
+    return NameBox(right_name, table_value=left_name)
 
 parser = pg.build()

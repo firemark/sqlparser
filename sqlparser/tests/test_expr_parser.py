@@ -26,6 +26,14 @@ def test_expr_float():
     assert parse_expr('1.0') == FloatBox('1.0')
 
 
+def test_expr_name():
+    assert parse_expr('foo') == NameBox('foo')
+
+
+def test_expr_dotted_name():
+    assert parse_expr('foo.bar') == NameBox('bar', table_value='foo')
+
+
 def test_expr_add():
     assert parse_expr('a + b') == OpBox(
         op='OP_ADD',

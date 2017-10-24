@@ -33,6 +33,10 @@ def test_sql_evaler_column_name():
     assert evalize('username') == 'username'
 
 
+def test_sql_evaler_column_name_with_table():
+    assert evalize('users.username') == 'users.username'
+
+
 def test_sql_evaler_function():
     assert evalize('lower(username)') == 'lower(username)'
 
@@ -56,9 +60,10 @@ def test_sql_set_special_var():
     special_vars = {
         'QUESTION_OF_LIFE': StringBox('42'),
         'TWO': IntegerBox('2'),
+        'foo.bar': StringBox('foo')
     }
-    result = evalize('QUESTION_OF_LIFE = 40 + TWO', special_vars)
-    assert result == "'42' = 40 + 2"
+    result = evalize('QUESTION_OF_LIFE = 40 + TWO + foo.bar', special_vars)
+    assert result == "'42' = 40 + 2 + 'foo'"
 
 
 def test_sql_unknown_function():
@@ -69,7 +74,7 @@ def test_sql_unknown_function():
 
 
 def test_sql_typecasting():
-    assert evalize('"5"::float') == 'CAST("5" AS NUMERIC)'
+    assert evalize('\'5\'::float') == 'CAST(\'5\' AS NUMERIC)'
 
 
 def test_sql_unknown_typecasting():
